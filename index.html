@@ -1,40 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream - Video Player</title>
+    <title>My GitHub Hosting</title>
     <style>
-        body { margin: 0; padding: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        .player-container { width: 100%; max-width: 900px; position: relative; }
-        video { width: 100%; border: 1px solid #333; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        body { margin:0; background:#121212; color:white; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
+        .player-box { width:90%; max-width:800px; border:2px solid #333; border-radius:10px; overflow:hidden; background:#000; }
+        video { width:100%; display:block; }
+        .info { padding:15px; text-align:center; }
     </style>
 </head>
 <body>
 
-    <div class="player-container">
-        <video id="mainPlayer" controls autoplay poster="">
-            <source src="" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
+    <div class="player-box">
+        <!-- Poster URL i se aayega, Video URL v se aayega -->
+        <video id="myVideo" controls autoplay poster=""></video>
+        <div class="info">
+            <h3 id="vTitle">Playing Video...</h3>
+        </div>
     </div>
 
     <script>
-        // URL se parameters nikalne ke liye
         const params = new URLSearchParams(window.location.search);
-        const videoSrc = params.get('v'); // Video Link
-        const posterSrc = params.get('p'); // Poster/Image Link
+        const videoFileName = params.get('v'); // Video file ka naam
+        const posterLink = params.get('i');    // IBB link
 
-        const player = document.getElementById('mainPlayer');
+        const videoPlayer = document.getElementById('myVideo');
 
-        if (videoSrc) {
-            // Agar Dropbox link hai toh use direct link mein badalna
-            let finalVideo = videoSrc.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '');
-            player.src = finalVideo;
+        if(videoFileName) {
+            // Ye code apne aap aapki repo se video utha lega
+            videoPlayer.src = videoFileName; 
+            document.getElementById('vTitle').innerText = videoFileName;
         }
-
-        if (posterSrc) {
-            player.poster = posterSrc;
+        if(posterLink) {
+            videoPlayer.poster = posterLink;
         }
     </script>
 </body>
