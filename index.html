@@ -1,88 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>GitHub Video Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desi Player</title>
     <style>
-        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; display: flex; justify-content: center; }
-        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 400px; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { background: #24292e; color: white; cursor: pointer; font-weight: bold; }
-        #status { font-size: 13px; color: blue; }
+        body { margin: 0; background: #000; height: 100vh; display: flex; align-items: center; }
+        video { width: 100%; max-height: 100vh; }
     </style>
 </head>
 <body>
-
-<div class="box">
-    <h2>Upload to GitHub</h2>
-    <input type="password" id="token" placeholder="GitHub Personal Access Token">
-    <input type="text" id="repo" placeholder="username/repository_name">
-    <input type="file" id="videoFile" accept="video/mp4">
-    <button onclick="uploadVideo()">Upload & Get Link</button>
-    
-    <div id="status"></div>
-    <div id="result" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:10px;">
-        <strong>Player Link:</strong><br>
-        <input type="text" id="finalLink" readonly>
-    </div>
-</div>
-
-<script>
-    async function uploadVideo() {
-        const token = document.getElementById('token').value;
-        const repoPath = document.getElementById('repo').value; // e.g. "603-ops/my-videos"
-        const fileInput = document.getElementById('videoFile');
-        const status = document.getElementById('status');
-
-        if (!token || !repoPath || !fileInput.files[0]) {
-            alert("Sari fields bhariye!");
-            return;
+    <video id="videoPlayer" controls autoplay></video>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const fileName = urlParams.get('v'); // URL se file ka naam lega
+        if (fileName) {
+            document.getElementById('videoPlayer').src = fileName;
         }
-
-        const file = fileInput.files[0];
-        const fileName = file.name.replace(/\s+/g, '_'); // Space hatane ke liye
-        
-        status.innerText = "Uploading... (Please wait)";
-
-        // File ko Base64 mein convert karna
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async () => {
-            const content = reader.result.split(',')[1];
-
-            // GitHub API Call
-            const url = `https://api.github.com/repos/${repoPath}/contents/${fileName}`;
-            
-            try {
-                const response = await fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: `Upload video: ${fileName}`,
-                        content: content
-                    })
-                });
-
-                if (response.ok) {
-                    status.innerText = "Upload Successful!";
-                    const user = repoPath.split('/')[0];
-                    const repoName = repoPath.split('/')[1];
-                    const finalUrl = `https://${user}.github.io/${repoName}/?file=${fileName}`;
-                    
-                    document.getElementById('finalLink').value = finalUrl;
-                    document.getElementById('result').style.display = 'block';
-                } else {
-                    const err = await response.json();
-                    status.innerText = "Error: " + err.message;
-                }
-            } catch (e) {
-                status.innerText = "Error: " + e.message;
-            }
-        };
-    }
-</script>
+    </script>
 </body>
 </html>
