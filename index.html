@@ -2,130 +2,72 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Cloud Hosting - Video Player</title>
+    <title>Admin Panel - Link Generator</title>
     <style>
-        :root { --primary: #007bff; --dark: #121212; --card: #1e1e1e; --text: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--text); margin: 0; padding: 0; }
-        
-        /* Navbar */
-        nav { background: #000; padding: 15px 50px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); }
-        .logo { font-size: 24px; font-weight: bold; color: var(--primary); }
-
-        /* Main Container */
-        .container { max-width: 1000px; margin: 30px auto; padding: 20px; }
-
-        /* Upload Section */
-        .upload-box { background: var(--card); padding: 30px; border-radius: 12px; text-align: center; border: 2px dashed #444; margin-bottom: 40px; }
-        input[type="text"], input[type="password"] { width: 80%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #333; background: #000; color: #fff; }
-        .btn { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-
-        /* Video Player Section */
-        .player-section { display: none; margin-bottom: 40px; text-align: center; }
-        video { width: 100%; max-height: 500px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,123,255,0.3); }
-
-        /* Video List/Library */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .video-card { background: var(--card); padding: 15px; border-radius: 10px; transition: 0.3s; cursor: pointer; }
-        .video-card:hover { transform: translateY(-5px); border: 1px solid var(--primary); }
-        .video-card img { width: 100%; border-radius: 8px; }
-        .video-card h3 { font-size: 16px; margin: 10px 0; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; justify-content: center; padding: 20px; }
+        .panel { background: #1e1e1e; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: #007bff; text-align: center; }
+        .group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaa; }
+        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 25px; padding: 15px; background: #252525; border-radius: 8px; display: none; border: 1px dashed #444; }
+        #finalUrl { word-break: break-all; color: #00ff00; font-size: 13px; margin-bottom: 10px; display: block; }
+        .copy-btn { background: #28a745; padding: 8px; font-size: 12px; }
     </style>
 </head>
 <body>
 
-<nav>
-    <div class="logo">MY-CLOUD HOSTING</div>
-    <div class="user-info">Admin Panel</div>
-</nav>
-
-<div class="container">
-    <!-- Player Section (Jab video play karni ho) -->
-    <div class="player-section" id="playerSection">
-        <h2 id="nowPlaying">Playing Video</h2>
-        <video id="mainPlayer" controls autoplay></video>
-        <br>
-        <button class="btn" onclick="closePlayer()">Close Player</button>
+<div class="panel">
+    <h2>Hosting Admin Panel</h2>
+    
+    <div class="group">
+        <label>1. Your GitHub Page URL (e.g. https://603-ops.github.io/player/)</label>
+        <input type="text" id="baseLink" placeholder="https://yourname.github.io/repo/">
     </div>
 
-    <!-- Upload Panel -->
-    <div class="upload-box">
-        <h3>Upload New Video to Hosting</h3>
-        <input type="password" id="token" placeholder="Enter GitHub Token"><br>
-        <input type="text" id="repoPath" placeholder="username/repo_name (e.g. 603-ops/my-hosting)"><br>
-        <input type="file" id="fileInput" accept="video/mp4"><br>
-        <button class="btn" onclick="uploadToHosting()">Upload Now</button>
-        <p id="status"></p>
+    <div class="group">
+        <label>2. Video Link (Dropbox or GitHub direct link)</label>
+        <input type="text" id="videoLink" placeholder="Paste link here">
     </div>
 
-    <!-- Library -->
-    <h2>Your Hosted Videos</h2>
-    <div class="grid" id="videoGrid">
-        <!-- Videos yahan dikhengi -->
-        <p>No videos uploaded yet. Upload your first video!</p>
+    <div class="group">
+        <label>3. Poster/Image Link (IBB Link)</label>
+        <input type="text" id="posterLink" placeholder="Paste IBB link here">
+    </div>
+
+    <button onclick="generateLink()">Generate Final Player Link</button>
+
+    <div class="result" id="resultBox">
+        <label>Share this link:</label>
+        <span id="finalUrl"></span>
+        <button class="copy-btn" onclick="copyText()">Copy Link</button>
     </div>
 </div>
 
 <script>
-    // 1. Upload Function
-    async function uploadToHosting() {
-        const token = document.getElementById('token').value;
-        const repo = document.getElementById('repoPath').value;
-        const fileInput = document.getElementById('fileInput');
-        const status = document.getElementById('status');
+    function generateLink() {
+        let base = document.getElementById('baseLink').value.trim();
+        let video = document.getElementById('videoLink').value.trim();
+        let poster = document.getElementById('posterLink').value.trim();
 
-        if(!token || !fileInput.files[0]) { alert("Token and File are required!"); return; }
+        if(!base || !video) { alert("Base URL and Video Link are required!"); return; }
 
-        const file = fileInput.files[0];
-        const fileName = "videos/" + file.name.replace(/\s+/g, '_');
-        status.innerText = "Uploading... Please wait.";
+        if(!base.endsWith('/')) base += '/';
 
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async () => {
-            const content = reader.result.split(',')[1];
-            const url = `https://api.github.com/repos/${repo}/contents/${fileName}`;
+        // Final URL Structure
+        let final = `${base}?v=${encodeURIComponent(video)}&p=${encodeURIComponent(poster)}`;
 
-            try {
-                const response = await fetch(url, {
-                    method: 'PUT',
-                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: `Hosted: ${file.name}`, content: content })
-                });
-
-                if(response.ok) {
-                    status.innerText = "Success! Video Hosted.";
-                    location.reload(); // Refresh to show new video
-                } else {
-                    status.innerText = "Error: Upload failed.";
-                }
-            } catch (e) { status.innerText = "Network Error."; }
-        };
+        document.getElementById('finalUrl').innerText = final;
+        document.getElementById('resultBox').style.display = 'block';
     }
 
-    // 2. Play Function
-    function playVideo(url, name) {
-        const section = document.getElementById('playerSection');
-        const player = document.getElementById('mainPlayer');
-        const title = document.getElementById('nowPlaying');
-
-        // GitHub Raw Link Conversion
-        // https://github.com/user/repo/blob/main/videos/vid.mp4 -> https://raw.githubusercontent.com/user/repo/main/videos/vid.mp4
-        let rawUrl = url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
-        
-        player.src = rawUrl;
-        title.innerText = "Playing: " + name;
-        section.style.display = 'block';
-        window.scrollTo(0,0);
+    function copyText() {
+        let link = document.getElementById('finalUrl').innerText;
+        navigator.clipboard.writeText(link);
+        alert("Link copied to clipboard!");
     }
-
-    function closePlayer() {
-        document.getElementById('playerSection').style.display = 'none';
-        document.getElementById('mainPlayer').pause();
-    }
-
-    // 3. (Optional) Isme aap manually apni uploaded videos ki list array mein daal sakte hain
-    // Ya GitHub API se fetch kar sakte hain list.
 </script>
 </body>
 </html>
