@@ -2,72 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - Link Generator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream - Video Player</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; justify-content: center; padding: 20px; }
-        .panel { background: #1e1e1e; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { color: #007bff; text-align: center; }
-        .group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaa; }
-        input { width: 100%; padding: 12px; background: #000; border: 1px solid #333; color: white; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        button:hover { background: #0056b3; }
-        .result { margin-top: 25px; padding: 15px; background: #252525; border-radius: 8px; display: none; border: 1px dashed #444; }
-        #finalUrl { word-break: break-all; color: #00ff00; font-size: 13px; margin-bottom: 10px; display: block; }
-        .copy-btn { background: #28a745; padding: 8px; font-size: 12px; }
+        body { margin: 0; padding: 0; background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .player-container { width: 100%; max-width: 900px; position: relative; }
+        video { width: 100%; border: 1px solid #333; border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body>
 
-<div class="panel">
-    <h2>Hosting Admin Panel</h2>
-    
-    <div class="group">
-        <label>1. Your GitHub Page URL (e.g. https://603-ops.github.io/player/)</label>
-        <input type="text" id="baseLink" placeholder="https://yourname.github.io/repo/">
+    <div class="player-container">
+        <video id="mainPlayer" controls autoplay poster="">
+            <source src="" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
     </div>
 
-    <div class="group">
-        <label>2. Video Link (Dropbox or GitHub direct link)</label>
-        <input type="text" id="videoLink" placeholder="Paste link here">
-    </div>
+    <script>
+        // URL se parameters nikalne ke liye
+        const params = new URLSearchParams(window.location.search);
+        const videoSrc = params.get('v'); // Video Link
+        const posterSrc = params.get('p'); // Poster/Image Link
 
-    <div class="group">
-        <label>3. Poster/Image Link (IBB Link)</label>
-        <input type="text" id="posterLink" placeholder="Paste IBB link here">
-    </div>
+        const player = document.getElementById('mainPlayer');
 
-    <button onclick="generateLink()">Generate Final Player Link</button>
+        if (videoSrc) {
+            // Agar Dropbox link hai toh use direct link mein badalna
+            let finalVideo = videoSrc.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('?dl=0', '');
+            player.src = finalVideo;
+        }
 
-    <div class="result" id="resultBox">
-        <label>Share this link:</label>
-        <span id="finalUrl"></span>
-        <button class="copy-btn" onclick="copyText()">Copy Link</button>
-    </div>
-</div>
-
-<script>
-    function generateLink() {
-        let base = document.getElementById('baseLink').value.trim();
-        let video = document.getElementById('videoLink').value.trim();
-        let poster = document.getElementById('posterLink').value.trim();
-
-        if(!base || !video) { alert("Base URL and Video Link are required!"); return; }
-
-        if(!base.endsWith('/')) base += '/';
-
-        // Final URL Structure
-        let final = `${base}?v=${encodeURIComponent(video)}&p=${encodeURIComponent(poster)}`;
-
-        document.getElementById('finalUrl').innerText = final;
-        document.getElementById('resultBox').style.display = 'block';
-    }
-
-    function copyText() {
-        let link = document.getElementById('finalUrl').innerText;
-        navigator.clipboard.writeText(link);
-        alert("Link copied to clipboard!");
-    }
-</script>
+        if (posterSrc) {
+            player.poster = posterSrc;
+        }
+    </script>
 </body>
 </html>
