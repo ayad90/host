@@ -5,9 +5,9 @@ from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 
 # --- CONFIGURATION (Render variables se aayega) ---
-API_ID = os.environ.get("API_ID")
-API_HASH = os.environ.get("API_HASH")
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
+API_ID = os.environ.get("34774921")
+API_HASH = os.environ.get("b3b608be7a648c062923e96fd7a312c2")
+BOT_TOKEN = os.environ.get("8931102368:AAGoac729b8MpmNgFRh3zsr201O3DPdzuiE")
 
 # Telegram Client Setup
 tg_app = Client("my_streamer", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
