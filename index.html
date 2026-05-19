@@ -173,6 +173,24 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script>
+        /* --- ISOLATED SECURITY LOCK --- */
+const ADMIN_PASSWORD = "786"; // Apna password set karein
+
+function checkAccess() {
+    const accessKey = localStorage.getItem('admin_access');
+    if (accessKey !== ADMIN_PASSWORD) {
+        const input = prompt("🔐 Enter Admin Security Password:");
+        if (input === ADMIN_PASSWORD) {
+            localStorage.setItem('admin_access', input);
+            location.reload();
+        } else {
+            alert("Wrong Password! Access Denied.");
+            document.body.innerHTML = "<h1 style='color:white; text-align:center; margin-top:50px;'>🚫 Unauthorized Access</h1>";
+        }
+    }
+}
+checkAccess();
+/* --- END SECURITY LOCK --- */
         const cfg = { apiKey: "AIzaSyD-EuuxfvWJsKsYa_bxyJaSwk5iIW_tX-4", authDomain: "study-material-6ec20.firebaseapp.com", databaseURL: "https://study-material-6ec20-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "study-material-6ec20", storageBucket: "study-material-6ec20.firebasestorage.app", messagingSenderId: "231876217358", appId: "1:231876217358:web:7b37abcaf24c0414c44a5f" };
         firebase.initializeApp(cfg); const db=firebase.database();
 
