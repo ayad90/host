@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIP ADMIN | Master Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --bg: #030b17; --card: #0f172a; --primary: #1f80e0; --text: #eee; --border: #1e293b; --gold: #ffcc00; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: var(--bg); color: var(--text); margin: 0; display: flex; height: 100vh; overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; background: #000; height: 100%; border-right: 1px solid var(--border); transition: 0.3s; position: fixed; left: 0; top: 0; z-index: 1000; display: flex; flex-direction: column; }
+        .sidebar-menu { flex: 1; padding: 20px 10px; overflow-y: auto; }
+        .nav-btn { padding: 14px; color: #888; cursor: pointer; border-radius: 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+        .nav-btn:hover, .nav-btn.active { background: var(--card); color: var(--primary); }
+        .nav-btn.active { background: var(--primary) !important; color: #fff !important; font-weight: bold; }
+
+        /* Main Area */
+        .main { flex: 1; margin-left: 260px; padding: 25px; overflow-y: auto; background: var(--bg); height: 100vh; width: 100%; }
+        .mobile-header { display: none; background: #000; padding: 15px; border-bottom: 1px solid var(--border); width: 100%; justify-content: space-between; align-items: center; position: fixed; top: 0; z-index: 1001; }
+
+        /* Stats & Analytics */
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: linear-gradient(145deg, #080808, #111); padding: 20px; border-radius: 15px; border: 1px solid var(--border); text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .stat-card h2 { font-size: 2.2rem; color: var(--primary); margin: 5px 0; }
+        .stat-card p { color: #888; font-size: 0.8rem; text-transform: uppercase; }
+
+        .card { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px; }
+        .ana-item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #1e293b; font-size: 0.9rem; align-items: center; }
+        .ana-views { background: var(--primary); color: #fff; padding: 2px 10px; border-radius: 20px; font-weight: bold; font-size: 0.75rem; }
+
+        /* Content List */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
+        .item-card { background: #000; border: 1px solid var(--border); padding: 5px; border-radius: 10px; text-align: center; position: relative; }
+        .item-card img { width: 100%; height: 100px; object-fit: contain; background: #080808; }
+        .exp-tag { position: absolute; top: 5px; right: 5px; background: #ff4444; color: #fff; font-size: 0.6rem; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
+
+        /* Inputs & Buttons */
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #1e293b; color: #fff; border-radius: 6px; }
+        .btn-p { width: 100%; padding: 14px; background: var(--primary); color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-gen { background: #28a745; color: #fff; padding: 8px; font-size: 0.75rem; width: 100%; border: none; border-radius: 4px; cursor: pointer; margin-top: 8px; font-weight: bold; }
+        .btn-load { background: #1e293b; color: #fff; padding: 10px; margin: 20px auto; display: block; width: 220px; border: none; border-radius: 5px; cursor: pointer; }
+
+        /* Modal */
+        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); align-items:center; justify-content:center; z-index:2000; padding: 20px; }
+        .modal-box { background: var(--card); padding: 20px; border-radius: 15px; width: 100%; max-width: 450px; border: 1px solid var(--border); max-height: 95vh; overflow-y: auto; }
+
+        @media (max-width: 768px) { .sidebar { left: -260px; } .sidebar.active { left: 0; } .main { margin-left: 0; padding-top: 80px; } .mobile-header { display: flex; } }
+    </style>
+</head>
+<body>
+
+    <header class="mobile-header"><div style="color:var(--primary); font-weight:bold;">VIP ADMIN MASTER</div><i class="fas fa-bars" onclick="toggleSidebar()"></i></header>
+
+    <aside class="sidebar" id="sidebar">
+        <div style="padding:25px; font-size:1.3rem; font-weight:bold; color:var(--primary); border-bottom: 1px solid #222;">VIP CONTROL</div>
+        <div class="sidebar-menu">
+            <div class="nav-btn" id="btn-dash" onclick="showSec('dash')"><i class="fas fa-chart-line"></i> Analytics</div>
+            <div class="nav-btn" id="btn-content" onclick="showSec('content')"><i class="fas fa-plus"></i> Videos</div>
+            <div class="nav-btn" id="btn-bulk" onclick="showSec('bulk')"><i class="fas fa-magic"></i> Bulk Fixer</div>
+            <div class="nav-btn" id="btn-settings" onclick="showSec('settings')"><i class="fas fa-cog"></i> Settings</div>
+            <div class="nav-btn" id="btn-slider" onclick="showSec('slider')"><i class="fas fa-images"></i> Slider & Ads</div>
+            <div class="nav-btn" id="btn-users" onclick="showSec('users')"><i class="fas fa-users"></i> Users & Reports</div>
+            <div class="nav-btn" id="btn-coupons" onclick="showSec('coupons')"><i class="fas fa-ticket-alt"></i> VIP Coupons</div>
+        </div>
+    </aside>
+
+    <main class="main">
+        <!-- 1. DASHBOARD -->
+        <section id="dash" class="sec" style="display: block;">
+            <h1>Dashboard</h1>
+            <div class="stat-grid">
+                <div class="stat-card"><h2 id="total-u">0</h2><p>Users</p></div>
+                <div class="stat-card"><h2 id="total-vip">0</h2><p>Active VIP</p></div>
+                <div class="stat-card"><h2 id="v-total">0</h2><p>Total Views</p></div>
+                <div class="stat-card"><h2 id="c-count">0</h2><p>Videos</p></div>
+            </div>
+            <div class="card"><h3>Video Watch Ranking</h3><div id="analytics-list">Loading...</div></div>
+            <button class="btn-p" style="background:#441111; color:red; border:1px solid red;" onclick="clearAllStats()">CLEAN ALL ANALYTICS</button>
+        </section>
+
+        <!-- 2. CONTENT LIBRARY -->
+        <section id="content" class="sec" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h1>Video List</h1>
+                <button class="btn-p" style="width:auto; padding:10px 20px;" onclick="openM()">+ FAST UPLOAD</button>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <input type="text" placeholder="Search..." id="adminSearch" onkeyup="updateFilter()">
+                <select id="catFilter" onchange="updateFilter()"><option value="All">All Categories</option></select>
+            </div>
+            <div class="grid" id="m-list" style="margin-top:20px;"></div>
+            <button id="loadMoreBtn" class="btn-p" style="margin-top:20px; background:#111;" onclick="loadMore()">Load More</button>
+        </section>
+
+        <!-- 3. BULK FIXER -->
+        <section id="bulk" class="sec" style="display:none;">
+            <h1>Bulk GitHub Link Fixer</h1>
+            <div class="card">
+                <p>Naya GitHub URL yahan dalein aur 1-click mein saari purani links update karein.</p>
+                <input id="bulk-gh-url" placeholder="https://hhhuu77.github.io/vids/">
+                <button class="btn-p" onclick="bulkUpdateLinks()">🚀 UPDATE ALL LINKS</button>
+            </div>
+        </section>
+
+        <!-- 4. SETTINGS -->
+        <section id="settings" class="sec" style="display:none;">
+            <div class="card">
+                <h3>App Version & Maintenance</h3>
+                <select id="main-status"><option value="true">Normal (ON)</option><option value="false">Update (OFF)</option></select>
+                <input id="main-ver-code" type="number" step="0.1" placeholder="Target Version">
+                <input id="main-msg" placeholder="Update Message">
+                <input id="main-link" placeholder="APK Link">
+                <button class="btn-p" onclick="saveMaintenance()">Update Version</button>
+            </div>
+            <div class="card">
+                <h3>General Config</h3>
+                <textarea id="ad-code" rows="4" placeholder="Adsterra Code"></textarea>
+                <input id="ad-img" placeholder="OR Ad Image URL"><input id="ad-lnk" placeholder="Ad Click Link">
+                <input id="ig-url" placeholder="Instagram"><input id="tg-url" placeholder="Telegram">
+                <input id="free-url" placeholder="Free Code Link"><input id="how-url" placeholder="Tutorial Link">
+                <input id="github-url" placeholder="GitHub Base Link">
+                <input id="profile-notice" placeholder="Profile Section Notice Text">
+                <button class="btn-p" onclick="saveSettings()">Save All</button>
+            </div>
+        </section>
+
+        <!-- [Remaining sections stay the same...] -->
+        <section id="slider" class="sec" style="display:none;">
+            <div class="card"><h3>Slider</h3><input id="slide-img" placeholder="Img"><button class="btn-p" onclick="addSlide()">Add</button><div class="grid" id="s-list"></div></div>
+            <div class="card"><h3>Splash</h3><input id="splash-img" placeholder="Img"><button class="btn-p" onclick="addSplash()">Add</button><div id="splash-list" class="grid"></div></div>
+        </section>
+        <section id="users" class="sec" style="display:none;">
+            <h3>User Manager</h3><div id="user-list"></div>
+            <h3>Reports</h3><div class="grid" id="report-list"></div>
+        </section>
+        <section id="coupons" class="sec" style="display:none;">
+            <div class="card"><input id="cp-name" placeholder="CODE"><input id="cp-hrs" type="number" placeholder="Hours"><button class="btn-p" onclick="addCoupon()">Create</button><div id="cp-list" style="margin-top:10px;"></div></div>
+        </section>
+    </main>
+
+    <!-- UPLOAD MODAL WITH AUTO-EXPIRE -->
+    <div id="modal" class="modal">
+        <div class="modal-box">
+            <h3 id="modal-title">Upload/Edit Video</h3>
+            <div id="prevBox" style="width:100%; height:120px; border:1px dashed #444; margin-bottom:10px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#000;">Preview</div>
+            <input id="m-id" type="hidden">
+            <input id="m-img" placeholder="Thumbnail URL" oninput="document.getElementById('prevBox').innerHTML='<img src=\''+this.value+'\' style=\'height:100%\'>'">
+            <input id="m-title" placeholder="Title"><input id="m-cat" list="clist" placeholder="Category"><datalist id="clist"></datalist>
+            <input id="m-duration" placeholder="Badge Text (e.g. 10:45 or HD)">
+            <input id="m-views" placeholder="Initial Views Count">
+            
+            <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px; border:1px solid #222;">
+                <label style="font-size:0.8rem; color:var(--primary);">Auto-Delete After (Optional):</label>
+                <div style="display:flex; gap:10px;">
+                    <input id="m-exp-val" type="number" placeholder="Val (e.g. 5)" style="flex:1;">
+                    <select id="m-exp-unit" style="flex:1;"><option value="min">Minutes</option><option value="day">Days</option></select>
+                </div>
+            </div>
+
+            <input id="m-vid" placeholder="Video Link">
+            <select id="m-type"><option value="free">Free</option><option value="premium">Premium 💎</option></select>
+            <button class="btn-p" onclick="saveM()">SAVE VIDEO</button>
+            <button class="btn-p" onclick="document.getElementById('modal').style.display='none'" style="background:#333; color:#fff; margin-top:10px;">CANCEL</button>
+        </div>
+    </div>
+
+    <!-- GITHUB MODAL -->
+    <div id="ghModal" class="modal"><div class="modal-box"><h3>🚀 GitHub Link Ready!</h3><textarea id="ghOutput" rows="6" readonly style="font-family:monospace; font-size:0.8rem; color:#ff9900;"></textarea><button class="btn-p" onclick="document.getElementById('ghModal').style.display='none'">CLOSE</button></div></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        const cfg = { apiKey: "AIzaSyD-EuuxfvWJsKsYa_bxyJaSwk5iIW_tX-4", authDomain: "study-material-6ec20.firebaseapp.com", databaseURL: "https://study-material-6ec20-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "study-material-6ec20", storageBucket: "study-material-6ec20.firebasestorage.app", messagingSenderId: "231876217358", appId: "1:231876217358:web:7b37abcaf24c0414c44a5f" };
+        firebase.initializeApp(cfg); const db=firebase.database();
+
+        let mv = {}, movieEntries = [], displayedCount = 20;
+
+        db.ref('users').on('value', s => document.getElementById('total-u').innerText = Object.keys(s.val()||{}).length);
+        
+        // MOVIES + AUTO CLEANUP
+        db.ref('movies').on('value', s => { 
+            mv = s.val() || {}; 
+            const now = Date.now();
+            for(let id in mv) { if(mv[id].expiry && mv[id].expiry > 0 && now > mv[id].expiry) db.ref('movies/'+id).remove(); }
+            updateFilter(); 
+        });
+
+        function updateFilter() {
+            const q = document.getElementById('adminSearch').value.toLowerCase();
+            movieEntries = Object.entries(mv).reverse().filter(([k,v]) => v.title.toLowerCase().includes(q));
+            const l = document.getElementById('m-list'); l.innerHTML = '';
+            movieEntries.slice(0, displayedCount).forEach(([k, v]) => {
+                let badge = v.expiry ? `<span class="exp-tag">Timer On</span>` : '';
+                l.innerHTML += `<div class="item-card">${badge}<img src="${v.poster}"><b>${v.title}</b><br><button class="btn-gen" onclick="genGHLink('${k}')">GEN LINK</button><div style="display:flex; gap:2px; padding:5px;"><button onclick="editM('${k}')" style="flex:1;">Edit</button><button onclick="del('movies','${k}')" style="flex:1; color:red;">X</button></div></div>`;
+            });
+            document.getElementById('loadMoreBtn').style.display = displayedCount >= movieEntries.length ? 'none' : 'block';
+            updateAnalytics();
+        }
+
+        function loadMore() { displayedCount += 20; updateFilter(); }
+
+        function saveM(){ 
+            const id=document.getElementById('m-id').value; 
+            const val=parseInt(document.getElementById('m-exp-val').value);
+            const unit=document.getElementById('m-exp-unit').value;
+            let expiryTime = 0;
+            if(val > 0) expiryTime = Date.now() + (val * (unit==='min'?60000:86400000));
+
+            const data={ title:document.getElementById('m-title').value, category:document.getElementById('m-cat').value, poster:document.getElementById('m-img').value.trim(), video:document.getElementById('m-vid').value, duration:document.getElementById('m-duration').value||'HD', views:document.getElementById('m-views').value||'0', expiry:expiryTime, type:document.getElementById('m-type').value }; 
+            if(id) db.ref('movies/'+id).update(data); else db.ref('movies').push(data); 
+            document.getElementById('modal').style.display='none'; 
+        }
+
+        function editM(k){ 
+            const d = mv[k]; document.getElementById('m-id').value = k;
+            document.getElementById('m-title').value = d.title; document.getElementById('m-cat').value = d.category;
+            document.getElementById('m-img').value = d.poster; document.getElementById('m-vid').value = d.video;
+            document.getElementById('m-duration').value = d.duration||''; document.getElementById('m-views').value = d.views||'';
+            document.getElementById('m-exp-val').value = '';
+            document.getElementById('prevBox').innerHTML=`<img src="${d.poster}" style="height:100%">`;
+            document.getElementById('modal').style.display='flex'; 
+        }
+
+        function genGHLink(id) {
+            const data = mv[id]; let v = data.video.trim(); let base = document.getElementById('github-url').value || "https://hhhuu77.github.io/vids/";
+            if(!base.endsWith('/')) base += '/';
+            if(v.includes("github.io")) { document.getElementById('ghOutput').value = v; } 
+            else { document.getElementById('ghOutput').value = `${base}?v=${encodeURIComponent(v)}&p=${encodeURIComponent(data.poster)}`; }
+            document.getElementById('ghModal').style.display = 'flex';
+        }
+
+        function updateAnalytics(){
+            db.ref('analytics/movie_views').on('value', s => {
+                const views = s.val() || {}; const sorted = Object.entries(views).sort((a,b)=>b[1]-a[1]).slice(0,15);
+                let vtotal = 0;
+                document.getElementById('analytics-list').innerHTML = sorted.map(([id, v]) => {
+                    vtotal += v; return `<div class="ana-item"><span>${mv[id]?mv[id].title:id}</span><span class="ana-views">${v} views</span></div>`;
+                }).join('');
+                document.getElementById('v-total').innerText = vtotal;
+                document.getElementById('c-count').innerText = Object.keys(mv).length;
+            });
+        }
+
+        function bulkUpdateLinks() {
+            let n = document.getElementById('bulk-gh-url').value.trim(); if(!n) return alert("URL?"); if(!n.endsWith('/')) n += '/';
+            for(let id in mv) {
+                let v = mv[id].video; let rv = v.includes("github.io") ? (new URL(v)).searchParams.get('v') : v;
+                if(rv) db.ref('movies/'+id).update({ video: `${n}?v=${encodeURIComponent(rv)}&p=${encodeURIComponent(mv[id].poster)}` });
+            }
+            alert("Done!");
+        }
+
+        function saveSettings(){ db.ref('settings').update({ adsterra:document.getElementById('ad-code').value, ad_image:document.getElementById('ad-img').value, ad_link:document.getElementById('ad-lnk').value, free_url:document.getElementById('free-url').value, tg_url:document.getElementById('tg-url').value, github_url:document.getElementById('github-url').value, profile_notice:document.getElementById('profile-notice').value }); }
+        function saveMaintenance(){ db.ref('maintenance_settings').update({ status: document.getElementById('main-status').value==='true', app_version: parseFloat(document.getElementById('main-ver-code').value), message: document.getElementById('main-msg').value, link: document.getElementById('main-link').value }); }
+        
+        function sv(id, val) { const el = document.getElementById(id); if(el) el.value = val || ''; }
+        db.ref('settings').on('value', s => { const d=s.val()||{}; sv('ad-code', d.adsterra); sv('ad-img', d.ad_image); sv('ad-link', d.ad_link); sv('free-url', d.free_url); sv('tg-url', d.tg_url); sv('github-url', d.github_url); sv('profile-notice', d.profile_notice); });
+        db.ref('maintenance_settings').on('value', s => { const d=s.val()||{}; sv('main-status', d.status?'true':'false'); sv('main-ver-code', d.app_version); sv('main-msg', d.message); sv('main-link', d.link); });
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
+        function showSec(id) { document.querySelectorAll('.sec').forEach(s => s.style.display='none'); document.getElementById(id).style.display='block'; document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); }
+        function openM(){ document.getElementById('modal').style.display='flex'; document.getElementById('m-id').value=''; document.querySelectorAll('#modal input').forEach(i=>i.value=''); }
+        function del(p,k){ if(confirm('Delete?')) db.ref(p+'/'+k).remove(); }
+        function delFull(id){ db.ref('movies/'+id).remove(); db.ref('reports/'+id).remove(); }
+        function clearAllStats() { if(confirm('Reset all?')) { db.ref('analytics').remove(); db.ref('unique_install_records').remove(); location.reload(); } }
+    </script>
+</body>
+</html>
